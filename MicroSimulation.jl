@@ -104,7 +104,7 @@ struct Registrations
     rs = new(
       collect(1:p),
       [cumsum(cs) ; zeros(Int64, p - s)],
-      [rand(1:(c - 1), s) ; rand(1:c, p - c)],
+      [rand(1:(c - 1), s) ; rand(1:c, p - s)],
       p,
       s,
       c
