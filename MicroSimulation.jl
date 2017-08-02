@@ -9,6 +9,48 @@ only be populated by the simulation.
 module MicroSimulation
 
 """
+    derangement(length)
+
+Uniformly randomly sample a derangement from the set of permutations of size `length`.
+
+# Example
+    julia> MicroSimulation.derangement(3)
+    3-element Array{Int64,1}:
+     2
+     3
+     1
+"""
+function derangement(n::Int64)
+  a = collect(1:n)
+  for i = 1:(n - 1)
+    j = a[i] < i < (n - 1) ? rand(i:n) : rand((i + 1):n)
+    a[[j, i]] .= a[[i, j]]
+  end
+  return a
+end
+
+"""
+    choose(elements, length)
+
+Uniformly randomly choose `elements` number of integers out `1:length` list of integers.
+
+# Example
+    julia> MicroSimulation.choose(3, 10)
+    3-element Array{Int64,1}:
+     4
+     1
+     9
+"""
+function choose(n::Int64, m::Int64)
+  a = collect(1:m)
+  for i = 1:n
+    j = rand(i:m)
+    a[[i, j]] .= a[[j, i]]
+  end
+  return a[1:n]
+end
+
+"""
     Registration(personidentifier, staffclinic, patientclinic)
 
 A single person in the simulation.
@@ -56,15 +98,18 @@ struct Registrations
   staffcount::Int64
   cliniccount::Int64
   function Registrations(p::Int64, s::Int64, c::Int64)
+    cs = zeros(Int64, s)
+    cs[1] .= 1
+    cs[1 + sort(choose(c - 1, s))] .= 1
     rs = new(
       collect(1:p),
-      [rand(1:(c - 1), s) ; zeros(Int64, p - s)],
-      rand(1:c, p),
+      [cumsum(cs) ; zeros(Int64, p - s)],
+      [rand(1:(c - 1), s) ; rand(1:c, p - c)],
       p,
       s,
       c
     )
-    rs.staffclinics[rs.staffclinics .== rs.patientclinics] .= c
+    rs.patientclinics[rs.staffclinics .== rs.patientclinics] .= c
     return rs
   end
 end
