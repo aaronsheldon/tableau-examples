@@ -30,6 +30,28 @@ function derangement(n::Int64)
 end
 
 """
+    cycle(length)
+
+Uniformly randomly sample a cyclic permutation from the set of permutations of size
+`length`.
+
+# Example
+    julia> MicroSimulation.cylce(3)
+    3-element Array{Int64,1}:
+     2
+     3
+     1
+"""
+function cycle(n::Int64)
+  a = collect(1:n)
+  for i = 1:(n - 1)
+    j = rand((i + 1):n)
+	a[[j, i]] .= a[[i, j]]
+  end
+  return a
+end
+
+"""
     choose(elements, length)
 
 Uniformly randomly choose `elements` number of integers out `1:length` list of integers.
@@ -69,6 +91,13 @@ struct Registration
   staffclinic::Int64
   patientclinic::Int64
 end
+
+Base.start(::Registration) = 1
+Base.next(r::Registration, i) = (r[i], i + 1)
+Base.done(r::Registration, i) = i > length(r)
+Base.length(r::Registration) = endof(r)
+Base.getindex(r::Registration, i::Int64) = getfield(r, i)
+Base.endof(r::Registration) = 3
 
 """
     Registrations(personcount, staffcount, cliniccount)
@@ -165,6 +194,13 @@ struct Clinic
   dutyend::Int64
 end
 
+Base.start(::Clinic) = 1
+Base.next(c::Clinic, i) = (c[i], i + 1)
+Base.done(c::Clinic, i) = i > length(c)
+Base.length(c::Clinic) = endof(c)
+Base.getindex(c::Clinic, i::Int64) = getfield(c, i)
+Base.endof(c::Clinic) = 8
+
 """
     Clinics(registrations)
 
@@ -256,6 +292,13 @@ struct Event
   patientidentifier::Int64
   staffidentifier::Int64
 end
+
+Base.start(::Event) = 1
+Base.next(ev::Event, i) = (ev[i], i + 1)
+Base.done(ev::Event, i) = i > length(ev)
+Base.length(ev::Event) = endof(ev)
+Base.getindex(ev::Event, i::Int64) = getfield(ev, i)
+Base.endof(ev::Event) = 3
 
 """
     Events(daterange, registrations, expectedvisits, expectedload)
